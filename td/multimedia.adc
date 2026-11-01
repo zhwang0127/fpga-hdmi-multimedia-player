@@ -1,0 +1,29 @@
+# HX4S20C / EG4S20BG256 顶层 multimedia_top 引脚约束。
+# HDMI_B 使用 LVDS33，只指定差分 P 端，N 端由器件工具配对。
+# 拨码和状态 LED 使用 LVCMOS33；未显式给出的电气属性采用工具默认配置。
+# 顶层不引出 DDC 和 HPD，HDMI 输出使用固定时序。
+# 50MHz 板载晶振输入。
+set_pin_assignment { clk_50m }  { LOCATION = R7; }
+# TF 卡 SPI：片选、时钟、发送和接收。
+set_pin_assignment { tf_cs_n }  { LOCATION = A12; }
+set_pin_assignment { tf_sclk }  { LOCATION = A14; }
+set_pin_assignment { tf_mosi }  { LOCATION = A13; }
+set_pin_assignment { tf_miso }  { LOCATION = B14; }
+# 蜂鸣器低有效，SW5 为物理使能。
+set_pin_assignment { buzzer_n } { LOCATION = H11; }
+# HDMI_B 数据 lane2/lane1/lane0 和时钟差分输出。
+set_pin_assignment { hdmi_d_p[2] } { LOCATION = E1; IOSTANDARD = LVDS33; }
+set_pin_assignment { hdmi_d_p[1] } { LOCATION = F1; IOSTANDARD = LVDS33; }
+set_pin_assignment { hdmi_d_p[0] } { LOCATION = G5; IOSTANDARD = LVDS33; }
+set_pin_assignment { hdmi_clk_p }  { LOCATION = C3; IOSTANDARD = LVDS33; }
+# K1/K2 播放按键，外部上拉、按下接地。
+set_pin_assignment { key1 } { LOCATION = A2; }
+set_pin_assignment { key2 } { LOCATION = B2; }
+# SW1/SW2 选择轮播周期；双掷开关连接 3V3/GND，无内部上拉或下拉。
+set_pin_assignment { switches[0] } { LOCATION = C8; IOSTANDARD = LVCMOS33; PULLTYPE = NONE; }
+set_pin_assignment { switches[1] } { LOCATION = C7; IOSTANDARD = LVCMOS33; PULLTYPE = NONE; }
+# 独立状态 LED，高有效，首图前显示启动错误闪码。
+set_pin_assignment { auto_mode } { LOCATION = A4; IOSTANDARD = LVCMOS33; PULLTYPE = NONE; }
+# K3/K4 菜单按键，低有效。
+set_pin_assignment { key3 } { LOCATION = B1; }
+set_pin_assignment { key4 } { LOCATION = C1; }
