@@ -56,7 +56,7 @@ flowchart LR
 4. 按下文构建工程，将生成的 `multimedia_top.bit` 通过与板卡匹配的下载器下载。仓库未附现成位流。
 5. 等待首图装载与提交后，使用 K1 切图、K2 启停轮播、K3/K4 调整菜单。
 
-示例素材来自 2026-10-31 留存的 TF 卡备份，包含四图四音频；图片覆盖 BMP24/RGB565 和不同方向，四段音频均为 48 kHz、16 位、双声道、3 秒。备份与当时记录的八个文件 SHA-256 一致，不代表实时核验当前实体卡的内容。
+仓库示例包含四张图片和四段同编号音频，图片覆盖 BMP24/RGB565 和正负高度；四段配音均为 48 kHz、16 位、双声道、3 秒，可直接用于格式与功能演示。
 
 ## 按键与菜单
 
@@ -120,7 +120,7 @@ ffmpeg -i input.wav -af apad -t 3 -ar 48000 -ac 2 -c:a pcm_s16le P0001.WAV
 
 ### GUI 方式
 
-新建对应器件工程，按清单导入源码，添加原 ADC/SDC，再运行综合、布局布线和位流生成。检查最终报告后下载。本仓库留存的已板测结果使用 **GUI MultiSeed seed 20**。
+新建对应器件工程，按清单导入源码，添加原 ADC/SDC，再运行综合、布局布线和位流生成。检查最终报告后下载。本工程已板测结果使用 **GUI MultiSeed seed 20**。
 
 ### 命令行方式
 
@@ -134,7 +134,7 @@ ffmpeg -i input.wav -af apad -t 3 -ar 48000 -ac 2 -c:a pcm_s16le P0001.WAV
 
 ## 资源与验证记录
 
-以下来自现有 [seed 20 日志](timing_seed20/run.log) 和 [路由时序报告](timing_seed20/hdmi_player_pr.timing)，不是本次修改文档重新运行工具的结果。
+以下数据依据 **GUI MultiSeed seed 20** 的 [运行日志](timing_seed20/run.log) 和 [路由时序报告](timing_seed20/hdmi_player_pr.timing)。
 
 | 资源 | 使用量 / 总量 | 利用率 |
 | --- | ---: | ---: |
@@ -147,7 +147,7 @@ ffmpeg -i input.wav -af apad -t 3 -ar 48000 -ac 2 -c:a pcm_s16le P0001.WAV
 
 路由 setup 最差裕量 **+0.118 ns**，hold 最差裕量 **+0.120 ns**，STNS/HTNS 均为 0。用户已反馈该 GUI seed 20 位流上板测试通过。
 
-SDC 未设置外部 IO 延时；原日志保留 SDRAM 位置、局部时钟布线严重警告及 PLL 反馈相关警告。正裕量和总体板测反馈不替代外部电气、长期运行或多接收端兼容性测量。详见 [验证范围](docs/TECHNICAL_DESIGN.md#12-验证记录与边界)。
+SDC 未设置外部 IO 延时；日志包含 SDRAM 位置、局部时钟布线严重警告及 PLL 反馈相关警告。正裕量和总体板测反馈不替代外部电气、长期运行或多接收端兼容性测量。详见 [验证范围](docs/TECHNICAL_DESIGN.md#12-验证记录与边界)。
 
 ## 目录结构
 
