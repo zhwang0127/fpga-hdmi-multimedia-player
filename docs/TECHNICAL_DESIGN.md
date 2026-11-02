@@ -20,7 +20,7 @@ flowchart TB
     SD["SD SPI 初始化与扇区读取"] --> FAT["FAT32 挂载 / 目录 / 簇链"]
     FAT --> F["分块字节服务"]
     F --> B["BMP 校验 / 像素装载 / 整文件提交"]
-    F --> W["WAV 校验 / PCM 银行装载"]
+    F --> W["WAV 校验 / PCM 缓冲区装载"]
     B --> M["共享 SDRAM 后端"]
     W --> M
     M --> V["显示引用 / 行束预取 / 扫描"]
@@ -40,7 +40,7 @@ flowchart TB
 | 存储服务 | [fat32_storage_services.v](../rtl/storage/fat32_storage_services.v) | 挂载、目录、文件字节服务 |
 | 卡接口 | [sd_spi_media_port.v](../rtl/storage/sd_spi_media_port.v) | SD 初始化、SPI 访问与扇区传输 |
 | 图像 | [bmp_header_check.v](../rtl/media/bmp_header_check.v)、[bmp_file_commit.v](../rtl/media/bmp_file_commit.v) | 格式、像素与整文件提交 |
-| 音频装载 | [wav_parser.v](../rtl/media/wav_parser.v)、[wav_sdram_loader.v](../rtl/audio/wav_sdram_loader.v) | PCM 格式校验与银行写入 |
+| 音频装载 | [wav_parser.v](../rtl/media/wav_parser.v)、[wav_sdram_loader.v](../rtl/audio/wav_sdram_loader.v) | PCM 格式校验与缓冲区写入 |
 | SDRAM | [sdram_shared_rw.v](../rtl/sdram/sdram_shared_rw.v)、[sdram_stream_controller.v](../rtl/sdram/sdram_stream_controller.v) | 客户端仲裁、初始化、刷新与完成回执 |
 | 显示 | [display_row_bundle.v](../rtl/video/display_row_bundle.v)、[bundle_scanout.v](../rtl/video/bundle_scanout.v) | 行缓存预取、使用和释放 |
 | 控制 | [b3_control.v](../rtl/control/b3_control.v)、[play_ctrl.v](../rtl/control/play_ctrl.v) | 启动交接、切图与轮播 |
@@ -168,7 +168,7 @@ SDC 的例外指向具体同步入口、保持总线和 Gray 指针，不把全�
 
 ### 7.2 共享控制
 
-显示读取、PCM DMA 与装载写入共用一套后端，统一控制初始化、刷新、银行时序和实际 SDRAM 命令。显示行期限、PCM FIFO 紧急需求与后台写入保护共同影响服务顺序。
+显示读取、PCM DMA 与装载写入共用一套后端，统一控制初始化、刷新、存储体时序和实际 SDRAM 命令。显示行期限、PCM FIFO 紧急需求与后台写入保护共同影响服务顺序。
 
 已经接受的 BL8 写段需要供满规定写拍，取消不能截断物理事务。顶层 mem 为 100 MHz，刷新间隔和宽限各 750 拍，即 7.5 μs；最大开行 8000 拍，即 80 μs。PHY 相位和读延迟应结合当前 SDC 核对，而非孤立复制参数。
 
@@ -180,11 +180,11 @@ SDC 的例外指向具体同步入口、保持总线和 Gray 指针，不把全�
 
 每个双声道样本帧占 4 字节，因此 `48000×2×2 = 192000` 字节/秒，对应 1 至 5 秒范围。改变扩展名、提高 TF 卡速度或增加文件大小，不能自动得到新的解码能力。
 
-### 8.2 双银行与声画切换
+### 8.2 双缓冲区与声画切换
 
-WAV 写入未发布 PCM 银行，整文件检查、尾块处理及后端写入合格后才允许引用。双银行将当前播放和下一段准备分开，防止覆盖正在读取的数据。
+WAV 写入未发布 PCM 缓冲区，整文件检查、尾块处理及后端写入合格后才允许引用。双缓冲区将当前播放和下一段准备分开，防止覆盖正在读取的数据。
 
-`wav_audio_control` 协调银行准备、取消和回执，使用 bank/token 匹配响应；DMA 经 FIFO 向样本口提供数据，最终由音量与 HDMI 音频通路输出。显示引用和音频选择根据已提交播放身份协调，不能在显示切换前随意复用银行。
+`wav_audio_control` 协调缓冲区准备、取消和回执，使用 bank/token 匹配响应；DMA 经 FIFO 向样本口提供数据，最终由音量与 HDMI 音频通路输出。显示引用和音频选择根据已提交播放身份协调，不能在显示切换前随意复用缓冲区。
 
 同编号配音缺失或无效时使用测试音回退。WAV/TONE 状态比“听到声音”更能帮助定位来源；频谱有柱形也不等于指定 WAV 成功播放。音量 00 静音，01–16 为其余档位，使用已有增益过渡逻辑。
 

@@ -30,7 +30,7 @@ flowchart LR
     TF["TF 卡 / FAT32"] --> FS["SPI 与文件服务"]
     FS --> BMP["BMP 校验与像素装载"]
     FS --> WAV["WAV 校验与 PCM 装载"]
-    BMP --> MEM["共享 SDRAM\n四图槽 + 双 PCM 银行"]
+    BMP --> MEM["共享 SDRAM\n四图槽 + PCM 双缓冲区"]
     WAV --> MEM
     MEM --> V["行缓存 / 扫描 / 擦拭"]
     MEM --> A["PCM DMA / 样本 / 音量"]
